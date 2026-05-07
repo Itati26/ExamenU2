@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritmos de Búsqueda</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:
+            linear-gradient(135deg,#1b4332,#2d6a4f,#40916c,#74c69d);
+            overflow:hidden;
+            position:relative;
+        }
+
+        body::before{
+            content:'';
+            position:absolute;
+            width:500px;
+            height:500px;
+            background:rgba(255,255,255,.08);
+            border-radius:50%;
+            top:-150px;
+            left:-150px;
+        }
+
+        body::after{
+            content:'';
+            position:absolute;
+            width:400px;
+            height:400px;
+            background:rgba(255,255,255,.05);
+            border-radius:50%;
+            bottom:-120px;
+            right:-120px;
+        }
+
+        .container{
+            width:900px;
+            max-width:95%;
+            background:rgba(255,255,255,.12);
+            backdrop-filter:blur(18px);
+            border:1px solid rgba(255,255,255,.2);
+            border-radius:30px;
+            padding:40px;
+            box-shadow:0 15px 40px rgba(0,0,0,.25);
+            position:relative;
+            z-index:10;
+            animation:fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn{
+            from{
+                opacity:0;
+                transform:translateY(20px);
+            }
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        .title{
+            text-align:center;
+            color:white;
+            margin-bottom:35px;
+        }
+
+        .title h1{
+            font-size:42px;
+            font-weight:700;
+        }
+
+        .title p{
+            margin-top:10px;
+            color:#d8f3dc;
+            font-size:15px;
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:20px;
+            margin-bottom:35px;
+        }
+
+        .card{
+            background:rgba(255,255,255,.1);
+            border-radius:20px;
+            padding:20px;
+            color:white;
+            text-align:center;
+            transition:.3s;
+            border:1px solid rgba(255,255,255,.15);
+        }
+
+        .card:hover{
+            transform:translateY(-8px) scale(1.03);
+            background:rgba(255,255,255,.18);
+        }
+
+        .card h2{
+            margin-bottom:10px;
+            font-size:22px;
+        }
+
+        .card p{
+            font-size:14px;
+            color:#d8f3dc;
+        }
+
+        .form-box{
+            background:rgba(255,255,255,.08);
+            padding:30px;
+            border-radius:25px;
+        }
+
+        .inputs{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+            margin-bottom:20px;
+        }
+
+        input, select{
+            width:100%;
+            padding:15px;
+            border:none;
+            border-radius:15px;
+            outline:none;
+            background:rgba(255,255,255,.15);
+            color:white;
+            font-size:15px;
+        }
+
+        input::placeholder{
+            color:#e9ecef;
+        }
+
+        select option{
+            color:black;
+        }
+
+        .btn{
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:18px;
+            background:linear-gradient(90deg,#52b788,#95d5b2);
+            color:#081c15;
+            font-size:17px;
+            font-weight:600;
+            cursor:pointer;
+            transition:.3s;
+        }
+
+        .btn:hover{
+            transform:scale(1.02);
+            box-shadow:0 10px 25px rgba(0,0,0,.2);
+        }
+
+        .resultado{
+            margin-top:30px;
+            background:rgba(255,255,255,.12);
+            border-radius:20px;
+            padding:25px;
+            color:white;
+            animation:fadeIn .8s ease;
+        }
+
+        .resultado h3{
+            margin-bottom:12px;
+            color:#d8f3dc;
+        }
+
+        .ruta{
+            background:rgba(0,0,0,.2);
+            padding:15px;
+            border-radius:15px;
+            margin-top:10px;
+            overflow:auto;
+        }
+
+        .ruta p{
+            font-size:16px;
+            line-height:1.8;
+        }
+
+        .cost{
+            margin-top:15px;
+            font-size:20px;
+            font-weight:bold;
+            color:#95d5b2;
+        }
+
+        @media(max-width:850px){
+
+            .cards{
+                grid-template-columns:1fr;
+            }
+
+            .inputs{
+                grid-template-columns:1fr;
+            }
+
+            .title h1{
+                font-size:32px;
+            }
+
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="title">
+        <h1>Algoritmos de Búsqueda BFS, BPI y UCS</h1>
+        <p>Selecciona el algoritmo y encuentra la mejor ruta</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>BFS</h2>
+            <p>Búsqueda en amplitud explorando nivel por nivel.</p>
+        </div>
+
+        <div class="card">
+            <h2>DFS Iterativa</h2>
+            <p>Explora profundamente usando límites iterativos.</p>
+        </div>
+
+        <div class="card">
+            <h2>UCS</h2>
+            <p>Encuentra la ruta con menor costo acumulado.</p>
+        </div>
+
+    </div>
+
+    <div class="form-box">
+
+        <form method="POST">
+
+            <div class="inputs">
+
+                <select name="algoritmo" required>
+                    <option value="">Selecciona algoritmo</option>
+                    <option value="bfs">BFS</option>
+                    <option value="dfs">DFS Iterativa</option>
+                    <option value="ucs">Costo Uniforme UCS</option>
+                </select>
+
+                <input
+                    type="text"
+                    name="inicio"
+                    placeholder="Estado inicial"
+                    required
+                >
+
+            </div>
+
+            <div class="inputs">
+
+                <input
+                    type="text"
+                    name="destino"
+                    placeholder="Destino"
+                    required
+                >
+
+            </div>
+
+            <button class="btn" type="submit">
+                Ejecutar Búsqueda
+            </button>
+
+        </form>
+
+        {% if resultado %}
+
+        <div class="resultado">
+
+            <h3>Ruta Encontrada</h3>
+
+            <div class="ruta">
+                <p>{{ resultado }}</p>
+            </div>
+
+            {% if costo %}
+
+            <div class="cost">
+                Costo Total: {{ costo }}
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
