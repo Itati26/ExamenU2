@@ -3,39 +3,80 @@ from arbol import Nodo
 
 app = Flask(__name__)
 
-# =========================
-# CONEXIONES BFS y DFS
-# =========================
+# =====================================================
+# GRAFO UNIFICADO PARA BFS Y DFS
+# =====================================================
 
 conexiones = {
-    'Jiloyork': {'Celaya', 'CDMX', 'Queretaro'},
-    'Sonora': {'Zacatecas', 'Sinaloa'},
-    'Guanajuato': {'Aguascalientes'},
-    'Oaxaca': {'Queretaro'},
-    'Sinaloa': {'Celaya', 'Sonora', 'Jiloyork'},
-    'Queretaro': {'Monterrey', 'Tamaulipas', 'Zacatecas', 'Sinaloa', 'Jiloyork', 'Oaxaca'},
-    'Celaya': {'Jiloyork', 'Sinaloa'},
-    'Zacatecas': {'Sonora', 'Monterrey', 'Queretaro'},
-    'Monterrey': {'Zacatecas', 'Sinaloa'},
-    'Tamaulipas': {'Queretaro'}
+    'Jiloyork': {'CDMX', 'Queretaro'},
+    'Morelos': {'Queretaro'},
+    'CDMX': {'Jiloyork', 'Queretaro', 'Hidalgo'},
+    'Hidalgo': {'CDMX', 'Queretaro', 'Mexicali', 'Monterrey'},
+    'Queretaro': {
+        'SanLuisPotosi',
+        'Morelos',
+        'Jiloyork',
+        'CDMX',
+        'Monterrey',
+        'Sonora',
+        'Hidalgo',
+        'Mexicali',
+        'Aguascalientes'
+    },
+    'SanLuisPotosi': {'Aguascalientes', 'Queretaro'},
+    'Aguascalientes': {'SanLuisPotosi', 'Queretaro'},
+    'Sonora': {'Queretaro', 'Mexicali'},
+    'Mexicali': {'Monterrey', 'Hidalgo', 'Queretaro'},
+    'Monterrey': {'Mexicali', 'Queretaro', 'Hidalgo'}
 }
 
-# =========================
-# CONEXIONES UCS
-# =========================
+# =====================================================
+# GRAFO UCS
+# =====================================================
 
 conexiones_ucs = {
-    'JILOYORK':{'CDMX': 125, 'QRO': 513},
-    'MORELOS':{'QRO': 524},
-    'CDMX':{'JILOYORK': 125, 'QRO': 423, 'HGO': 491},
-    'HGO':{'CDMX': 491, 'QRO': 356, 'MEXICALI': 309, 'MTY': 346},
-    'QRO':{'SLP': 203, 'MORELOS': 514, 'JILOYORK': 513, 'CDMX': 423,'MTY': 603,'SONORA': 437, 'HGO': 356,
-           'MEXICALI': 313, 'AGS': 599},
-    'SLP':{'AGS': 390, 'QRO': 599},
-    'AGS':{'SLP': 390, 'QRO': 203},
-    'SONORA':{'QRO': 437, 'MEXICALI': 394},
-    'MEXICALI':{'MTY': 296, 'HGO': 309, 'QRO': 313},
-    'MTY':{'MEXICALI': 296, 'QRO': 603, 'HGO': 346}
+    'Jiloyork': {'CDMX': 125, 'Queretaro': 513},
+    'Morelos': {'Queretaro': 524},
+    'CDMX': {'Jiloyork': 125, 'Queretaro': 423, 'Hidalgo': 491},
+    'Hidalgo': {
+        'CDMX': 491,
+        'Queretaro': 356,
+        'Mexicali': 309,
+        'Monterrey': 346
+    },
+    'Queretaro': {
+        'SanLuisPotosi': 203,
+        'Morelos': 514,
+        'Jiloyork': 513,
+        'CDMX': 423,
+        'Monterrey': 603,
+        'Sonora': 437,
+        'Hidalgo': 356,
+        'Mexicali': 313,
+        'Aguascalientes': 599
+    },
+    'SanLuisPotosi': {
+        'Aguascalientes': 390,
+        'Queretaro': 599
+    },
+    'Aguascalientes': {
+        'SanLuisPotosi': 390,
+        'Queretaro': 203
+    },
+    'Sonora': {
+        'Queretaro': 437,
+        'Mexicali': 394
+    },
+    'Mexicali': {
+        'Monterrey': 296,
+        'Hidalgo': 309,
+        'Queretaro': 313
+    },
+    'Monterrey': {
+        'Mexicali': 296,
+        'Queretaro': 603,
+        'Hidalgo': 346
+    }
 }
 
 # =====================================================
@@ -58,9 +99,7 @@ def buscar_solucion_BFS(conexiones, estado_inicial, solucion):
         if nodo.get_datos() == solucion:
             return nodo
 
-        dato_nodo = nodo.get_datos()
-
-        for un_hijo in conexiones.get(dato_nodo, []):
+        for un_hijo in conexiones.get(nodo.get_datos(), []):
 
             hijo = Nodo(un_hijo)
             hijo.set_padre(nodo)
@@ -75,6 +114,7 @@ def buscar_solucion_BFS(conexiones, estado_inicial, solucion):
 # =====================================================
 
 def DFS_prof_iter(nodo, solucion):
+
     for limite in range(0, 100):
 
         visitados = []
@@ -90,6 +130,7 @@ def DFS_prof_iter(nodo, solucion):
             return sol
 
     return None
+
 
 def buscar_solucion_DFS_Rec(nodo, solucion, visitados, limite):
 
@@ -190,7 +231,7 @@ def buscar_solucion_ucs(conexiones, nodo_inicial, solucion):
     return None
 
 # =====================================================
-# RUTA
+# OBTENER RUTA
 # =====================================================
 
 def obtener_ruta(nodo, inicio):
@@ -211,80 +252,70 @@ def obtener_ruta(nodo, inicio):
 # WEB
 # =====================================================
 
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=['GET', 'POST'])
 def index():
 
-    resultado = None
-    costo = None
+    resultado_bfs = None
+    resultado_dfs = None
+    resultado_ucs = None
+    costo_ucs = None
 
-    if request.method == "POST":
+    if request.method == 'POST':
 
-        algoritmo = request.form["algoritmo"]
-        inicio = request.form["inicio"]
-        destino = request.form["destino"]
+        inicio = request.form['inicio']
+        destino = request.form['destino']
 
-        # ================= UCS =================
+        # BFS
+        nodo_bfs = buscar_solucion_BFS(
+            conexiones,
+            inicio,
+            destino
+        )
 
-        if algoritmo == "ucs":
-
-            inicio = inicio.upper()
-            destino = destino.upper()
-
-            nodo_inicial = Nodo(inicio)
-
-            nodo_solucion = buscar_solucion_ucs(
-                conexiones_ucs,
-                nodo_inicial,
-                destino
+        if nodo_bfs:
+            resultado_bfs = obtener_ruta(
+                nodo_bfs,
+                inicio
             )
 
-            if nodo_solucion:
+        # DFS
+        nodo_inicial_dfs = Nodo(inicio)
 
-                resultado = obtener_ruta(
-                    nodo_solucion,
-                    inicio
-                )
+        nodo_dfs = DFS_prof_iter(
+            nodo_inicial_dfs,
+            destino
+        )
 
-                costo = nodo_solucion.get_costo()
-
-        # ================= BFS =================
-
-        elif algoritmo == "bfs":
-
-            nodo_solucion = buscar_solucion_BFS(
-                conexiones,
-                inicio,
-                destino
+        if nodo_dfs:
+            resultado_dfs = obtener_ruta(
+                nodo_dfs,
+                inicio
             )
 
-            if nodo_solucion:
-                resultado = obtener_ruta(
-                    nodo_solucion,
-                    inicio
-                )
+        # UCS
+        nodo_inicial_ucs = Nodo(inicio)
 
-        # ================= DFS =================
+        nodo_ucs = buscar_solucion_ucs(
+            conexiones_ucs,
+            nodo_inicial_ucs,
+            destino
+        )
 
-        elif algoritmo == "dfs":
-
-            nodo_inicial = Nodo(inicio)
-
-            nodo_solucion = DFS_prof_iter(
-                nodo_inicial,
-                destino
+        if nodo_ucs:
+            resultado_ucs = obtener_ruta(
+                nodo_ucs,
+                inicio
             )
 
-            if nodo_solucion:
-                resultado = obtener_ruta(
-                    nodo_solucion,
-                    inicio
-                )
+            costo_ucs = nodo_ucs.get_costo()
 
     return render_template(
-        "index.html",
-        resultado=resultado,
-        costo=costo
+        'index.html',
+        resultado_bfs=resultado_bfs,
+        resultado_dfs=resultado_dfs,
+        resultado_ucs=resultado_ucs,
+        costo_ucs=costo_ucs
     )
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run()
