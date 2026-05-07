@@ -4,7 +4,7 @@ from arbol import Nodo
 app = Flask(__name__)
 
 # =====================================================
-# GRAFO UNIFICADO PARA BFS Y DFS
+# GRAFO UNIFICADO
 # =====================================================
 
 conexiones = {
@@ -130,7 +130,6 @@ def DFS_prof_iter(nodo, solucion):
             return sol
 
     return None
-
 
 def buscar_solucion_DFS_Rec(nodo, solucion, visitados, limite):
 
@@ -259,13 +258,16 @@ def index():
     resultado_dfs = None
     resultado_ucs = None
     costo_ucs = None
+    algoritmo = None
 
     if request.method == 'POST':
 
+        algoritmo = request.form['algoritmo']
         inicio = request.form['inicio']
         destino = request.form['destino']
 
-        # BFS
+        # ================= BFS =================
+
         nodo_bfs = buscar_solucion_BFS(
             conexiones,
             inicio,
@@ -278,7 +280,8 @@ def index():
                 inicio
             )
 
-        # DFS
+        # ================= DFS =================
+
         nodo_inicial_dfs = Nodo(inicio)
 
         nodo_dfs = DFS_prof_iter(
@@ -292,7 +295,8 @@ def index():
                 inicio
             )
 
-        # UCS
+        # ================= UCS =================
+
         nodo_inicial_ucs = Nodo(inicio)
 
         nodo_ucs = buscar_solucion_ucs(
@@ -314,7 +318,8 @@ def index():
         resultado_bfs=resultado_bfs,
         resultado_dfs=resultado_dfs,
         resultado_ucs=resultado_ucs,
-        costo_ucs=costo_ucs
+        costo_ucs=costo_ucs,
+        algoritmo=algoritmo
     )
 
 if __name__ == '__main__':
